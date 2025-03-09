@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body{background:#f0f2f5;font-family: 'Arial', sans-serif;padding: 20px;overflow-y:auto}
+        table{border:solid black;border-collapse: collapse;border-radius: 8px}
+        th{background: #2c3e50;padding: 15px;color:white;border:solid #2c3e50 2px;text-transform: uppercase}
+        td{border:solid 2px #2c3e50;padding: 12px}
+        .over_view_td_center_left{max-width: 400px;text-align: left}
+        #website_heading{text-align: center;color: #2c3e50;margin-bottom: 20px}
+
+    </style>
+</head>
+<body>
+<div id="website_heading">
+    <h1>Movie database</h1>
+</div>
+<div id="main_div">
+
+</div>
+
+<script>
+    let api_key="1be7645aefc5ea29e72323c1b2aec0ba";
+    let total_pages_of_movie_website=100;
+    let access_main_div=document.getElementById("main_div");
+
+    let create_table=document.createElement("table");
+    let create_thead=document.createElement("thead");
+    let create_tbody=document.createElement("tbody");
+
+    let list_of_column_names=["serial_number","title","overview","release_date","poster_path"];
+    let create_thead_tr=document.createElement("tr");
+    for (let j=0;j<list_of_column_names.length;j = j+1){
+        let create_thead_th=document.createElement("th");
+        create_thead_th.innerHTML=list_of_column_names[j];
+        create_thead_tr.append(create_thead_th);
+    }
+    create_thead.append(create_thead_tr);
+    create_table.append(create_thead);
+    let counter = 0;
+    for (let i=1;i<=total_pages_of_movie_website;i = i+1){
+        let response_then_function=fetch("https://api.themoviedb.org/3/discover/movie?api_key=" + api_key + "&sort_by=popularity.desc&page=" + i);
+        // console.log("https://api.themoviedb.org/3/discover/movie?api_key=" + api_key + "&sort_by=popularity.desc&page=" + i);
+        let json_data=response_then_function.then(json_parameter=>json_parameter.json());
+        let json_calculations=json_data.then(json_manipulations=>{
+            // console.log(json_manipulations);
+            let list_of_movie_details=json_manipulations["results"];
+
+
+
+
+
+
+            for (let k=0;k<list_of_movie_details.length;k=k+1){
+                counter = counter + 1;
+                let create_tbody_tr=document.createElement("tr");
+                for (let l=0;l<list_of_column_names.length;l = l+1){
+                    let create_tbody_td=document.createElement("td");
+                    if (list_of_column_names[l]==="poster_path"){
+                        let image_full_path="https://image.tmdb.org/t/p/w500/" + json_manipulations["results"][k][list_of_column_names[l]]
+                        let create_image_element=document.createElement("img");
+                        create_image_element.src=image_full_path;
+                        create_image_element.style.width = "190px";
+                        create_image_element.style.height = "250px";
+                        create_tbody_td.append(create_image_element);
+                    }
+                    else{
+                        if (list_of_column_names[l]!=="serial_number"){
+                            if (list_of_column_names[l]==="overview"){
+                                create_tbody_td.className="over_view_td_center_left";
+                            }
+                            let required_data=json_manipulations["results"][k][list_of_column_names[l]];
+                            create_tbody_td.innerHTML=required_data;
+                        }
+                        else{
+                            let serial_number=(i-1)*list_of_movie_details.length+(k+1);
+                            create_tbody_td.innerHTML=serial_number;
+                        }
+                    }
+
+                    create_tbody_tr.append(create_tbody_td);
+                }
+                create_tbody.append(create_tbody_tr);
+            }
+            create_table.append(create_tbody);
+            access_main_div.append(create_table);
+        });
+    }
+
+</script>
+</body>
+</html>
